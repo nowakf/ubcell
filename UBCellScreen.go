@@ -2,8 +2,9 @@ package ubcell
 
 import (
 	"github.com/golang/freetype/truetype"
+	"github.com/nowakf/pixel"
 	"github.com/nowakf/pixel/pixelgl"
-	"golang.org/x/image/font"
+	"github.com/nowakf/pixel/text"
 	"image/color"
 	"io/ioutil"
 	"os"
@@ -37,19 +38,40 @@ func NewUBCellScreen(p *pixelgl.Window) (Screen, error) {
 		Size: 12,
 		DPI:  dpi,
 	})
-	bounds, _, _ := face.GlyphBounds('S')
-	glyphHeight := bounds.Max.Y - bounds.Min.Y
-	glyphWidth := bounds.Max.X - bounds.Min.X
-	u.h = int(float64(fh) / float64(glyphHeight))
-	u.w = int(float64(fw) / float64(glyphWidth))
+
+	atlas := text.NewAtlas(face, text.ASCII)
+
+	u.hinc = atlas.Glyph('S').Frame.H()
+	u.winc = atlas.Glyph('S').Frame.W()
+	u.h = int(fh / u.hinc)
+	u.w = int(fw / u.winc)
+
+	u.t = text.New(pixel.ZV, atlas)
+
+	u.cells = NewCellBuffer(u.h, u.w,
+		func(x, y int, r rune) {
+			u.t.Add(r, pixel.V(u.winc*float64(x), u.hinc*float64(y)))
+		},
+		func(c color.RGBA) {
+			//change the color
+			u.t.Ink(c)
+		},
+		func() {
+			u.t.Apply()
+			u.t.Draw(p, pixel.IM)
+		})
+
 	//you can hand it a reference to the backing array here?
 	return u, err
 }
 
 type ubcellScreen struct {
-	face  *font.Face
-	lines LineBuffer
-	h, w  int
+	t   *text.Text
+	win *pixelgl.Window
+
+	h, w       int
+	hinc, winc float64
+	cells      *CellBuffer
 	sync.Mutex
 }
 
@@ -57,8 +79,9 @@ func (u *ubcellScreen) Init() error {
 	return nil
 }
 func (u *ubcellScreen) inputLoop() {}
-func (u *ubcellScreen) mainLoop()  {}
-func (u *ubcellScreen) draw()      {}
+func (u *ubcellScreen) mainLoop() {
+	u.cells.Draw()
+}
 func (u *ubcellScreen) Fini() {
 }
 func (u *ubcellScreen) Clear()                      {}
@@ -68,17 +91,17 @@ func (u *ubcellScreen) SetCell(x, y int, style Style, ch ...rune) {
 	panic("called SetCell!")
 }
 func (u *ubcellScreen) GetContent(x, y int) (ch rune, style Style, width int) {
-	return ' ', StyleDefault, y
+	return u.cells.GetContent(x, y), 1
 }
 
 func (u *ubcellScreen) SetContent(x, y int, ch rune, style Style) {
-
+	u.cells.SetContent(x, y, ch, style)
 }
 func (u *ubcellScreen) showCursor()         {}
 func (u *ubcellScreen) ShowCursor(x, y int) {}
 func (u *ubcellScreen) HideCursor()         {}
 func (u *ubcellScreen) Size() (int, int) {
-	return u.lines.Size()
+	return u.h, u.w
 }
 func (u *ubcellScreen) PollEvent() Event {
 	return nil
