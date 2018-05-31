@@ -1,7 +1,14 @@
 package ubcell
 
-import "image/color"
+import (
+	"golang.org/x/image/colornames"
+	"image/color"
+)
 
-func GetColor(s string) color.RGBA {
-	return color.RGBA{1, 1, 1, 1}
+func GetColor(name string) color.RGBA {
+	if c, ok := colornames.Map[name]; ok {
+		return c
+	} else {
+		return colornames.Mediumspringgreen
+	}
 }

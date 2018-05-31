@@ -14,9 +14,9 @@ type Screen interface {
 
 	Fill(rune, color.RGBA)
 
-	GetContent(x, y int) (ch rune, style *Style)
+	GetContent(x, y int) (ch rune, style Style)
 
-	SetContent(x int, y int, ch rune, style *Style)
+	SetContent(x int, y int, ch rune, style Style)
 
 	ShowCursor(x int, y int)
 
@@ -25,6 +25,8 @@ type Screen interface {
 	Size() (int, int)
 
 	PollEvent() pixelgl.Event
+
+	PostEvent()
 
 	Show()
 }

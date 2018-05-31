@@ -13,12 +13,12 @@ type Style struct {
 func (s Style) Decompose() (color.RGBA, color.RGBA) {
 	return s.foreground, s.background
 }
-func (s *Style) Foreground(c color.RGBA) *Style {
+func (s Style) Foreground(c color.RGBA) Style {
 	s.foreground = c
 	return s
 }
 
-func (s *Style) Background(c color.RGBA) *Style {
+func (s Style) Background(c color.RGBA) Style {
 	s.background = c
 	return s
 }

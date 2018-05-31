@@ -17,7 +17,7 @@ type CellBuffer struct {
 
 type cell struct {
 	ch    rune
-	style *Style
+	style Style
 }
 
 func NewCellBuffer(h, w int, drawer func(int, int, rune), ink func(color.RGBA), clear func(), done func()) *CellBuffer {
@@ -35,7 +35,7 @@ func NewCellBuffer(h, w int, drawer func(int, int, rune), ink func(color.RGBA), 
 
 // SetContent sets the contents (primary rune, combining runes,
 // and style) for a cell at a given location.
-func (c *CellBuffer) SetContent(x int, y int, ch rune, style *Style) {
+func (c *CellBuffer) SetContent(x int, y int, ch rune, style Style) {
 
 	if x < 0 || y < 0 || x >= c.w || y >= c.h {
 		return
@@ -59,13 +59,12 @@ func (c *CellBuffer) SetContent(x int, y int, ch rune, style *Style) {
 }
 
 // GetContent returns the contents of a character cell
-func (c *CellBuffer) GetContent(x, y int) (rune, *Style) {
+func (c *CellBuffer) GetContent(x, y int) (rune, Style) {
 	if x < 0 || y < 0 || x <= c.w || y <= c.h {
 		cel := &c.cells[(c.w*y)+x]
 		return cel.ch, cel.style
 	} else {
-
-		return '?', &StyleDefault
+		return '?', StyleDefault
 	}
 
 }

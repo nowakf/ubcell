@@ -96,7 +96,9 @@ type ubcellScreen struct {
 func (u *ubcellScreen) Init() error {
 	return nil
 }
-
+func (u *ubcellScreen) PostEvent() {
+	u.win.PostEmpty()
+}
 func (u *ubcellScreen) Fini() {
 }
 func (u *ubcellScreen) Clear() {
@@ -107,14 +109,14 @@ func (u *ubcellScreen) Clear() {
 func (u *ubcellScreen) Fill(r rune, col color.RGBA) {
 }
 
-func (u *ubcellScreen) GetContent(x, y int) (ch rune, style *Style) {
+func (u *ubcellScreen) GetContent(x, y int) (ch rune, style Style) {
 	u.Lock()
 	defer u.Unlock()
 	ch, sty := u.cells.GetContent(x, y)
 	return ch, sty
 }
 
-func (u *ubcellScreen) SetContent(x, y int, ch rune, style *Style) {
+func (u *ubcellScreen) SetContent(x, y int, ch rune, style Style) {
 	u.Lock()
 	defer u.Unlock()
 	u.cells.SetContent(x, y, ch, style)
@@ -136,10 +138,6 @@ func (u *ubcellScreen) Size() (int, int) {
 }
 func (u *ubcellScreen) PollEvent() pixelgl.Event {
 	return u.win.PollEvent()
-}
-func (u *ubcellScreen) PostEvent() error {
-	u.win.PostEmpty()
-	return nil
 }
 func (u *ubcellScreen) Show() {
 	u.Lock()

@@ -8,7 +8,7 @@
 ADJUSTX	UBCellScreen.go	/^const ADJUSTX = -2$/;"	c	package:ubcell
 ADJUSTY	UBCellScreen.go	/^const ADJUSTY = -2$/;"	c	package:ubcell
 App	_app.go	/^func App(w *pixelgl.Window) *app {$/;"	f	package:tview
-Background	style.go	/^func (s *Style) Background(c color.RGBA) *Style {$/;"	f	unknown:ubcell.Style
+Background	style.go	/^func (s Style) Background(c color.RGBA) Style {$/;"	f	unknown:ubcell.Style
 Cat	UBCellScreen.go	/^func (u *ubcellScreen) Cat(r rune) (names []string) {$/;"	f	unknown:ubcell.ubcellScreen
 CellBuffer	cell.go	/^type CellBuffer struct {$/;"	s	package:ubcell
 Clear	UBCellScreen.go	/^func (u *ubcellScreen) Clear() {$/;"	f	unknown:ubcell.ubcellScreen
@@ -23,10 +23,10 @@ Fill	UBCellScreen.go	/^func (u *ubcellScreen) Fill(r rune, col color.RGBA) {$/;"
 Fill	cell.go	/^func (c *CellBuffer) Fill(rune, color.RGBA) {$/;"	f	unknown:ubcell.CellBuffer
 Fini	UBCellScreen.go	/^func (u *ubcellScreen) Fini() {$/;"	f	unknown:ubcell.ubcellScreen
 Fini	cell.go	/^func (c *CellBuffer) Fini() {$/;"	f	unknown:ubcell.CellBuffer
-Foreground	style.go	/^func (s *Style) Foreground(c color.RGBA) *Style {$/;"	f	unknown:ubcell.Style
-GetColor	color.go	/^func GetColor(s string) color.RGBA {$/;"	f	package:ubcell
-GetContent	UBCellScreen.go	/^func (u *ubcellScreen) GetContent(x, y int) (ch rune, style *Style) {$/;"	f	unknown:ubcell.ubcellScreen
-GetContent	cell.go	/^func (c *CellBuffer) GetContent(x, y int) (rune, *Style) {$/;"	f	unknown:ubcell.CellBuffer
+Foreground	style.go	/^func (s Style) Foreground(c color.RGBA) Style {$/;"	f	unknown:ubcell.Style
+GetColor	color.go	/^func GetColor(name string) color.RGBA {$/;"	f	package:ubcell
+GetContent	UBCellScreen.go	/^func (u *ubcellScreen) GetContent(x, y int) (ch rune, style Style) {$/;"	f	unknown:ubcell.ubcellScreen
+GetContent	cell.go	/^func (c *CellBuffer) GetContent(x, y int) (rune, Style) {$/;"	f	unknown:ubcell.CellBuffer
 GetInputCapture	_app.go	/^func (a *app) GetInputCapture() func(event *pixelgl.KeyEv) *pixelgl.KeyEv {$/;"	f	unknown:tview.app
 HideCursor	UBCellScreen.go	/^func (u *ubcellScreen) HideCursor()         {}$/;"	f	unknown:ubcell.ubcellScreen
 HideCursor	cell.go	/^func (c *CellBuffer) HideCursor() {$/;"	f	unknown:ubcell.CellBuffer
@@ -39,12 +39,12 @@ NewScreen	screen.go	/^func NewScreen(p *pixelgl.Window, path string) (Screen, er
 NewUBCellScreen	UBCellScreen.go	/^func NewUBCellScreen(p *pixelgl.Window, path string) (Screen, error) {$/;"	f	package:ubcell
 PollEvent	UBCellScreen.go	/^func (u *ubcellScreen) PollEvent() pixelgl.Event {$/;"	f	unknown:ubcell.ubcellScreen
 PollEvent	cell.go	/^func (c *CellBuffer) PollEvent() interface{} {$/;"	f	unknown:ubcell.CellBuffer
-PostEvent	UBCellScreen.go	/^func (u *ubcellScreen) PostEvent() error {$/;"	f	unknown:ubcell.ubcellScreen
+PostEvent	UBCellScreen.go	/^func (u *ubcellScreen) PostEvent() {$/;"	f	unknown:ubcell.ubcellScreen
 Resize	cell.go	/^func (c *CellBuffer) Resize(h, w int) {$/;"	f	unknown:ubcell.CellBuffer
 Screen	screen.go	/^type Screen interface {$/;"	i	package:ubcell
 Seperate	cell.go	/^func (c *CellBuffer) Seperate(changes sort.IntSlice) (foregrounds map[color.RGBA][]int, backgrou/;"	f	unknown:ubcell.CellBuffer
-SetContent	UBCellScreen.go	/^func (u *ubcellScreen) SetContent(x, y int, ch rune, style *Style) {$/;"	f	unknown:ubcell.ubcellScreen
-SetContent	cell.go	/^func (c *CellBuffer) SetContent(x int, y int, ch rune, style *Style) {$/;"	f	unknown:ubcell.CellBuffer
+SetContent	UBCellScreen.go	/^func (u *ubcellScreen) SetContent(x, y int, ch rune, style Style) {$/;"	f	unknown:ubcell.ubcellScreen
+SetContent	cell.go	/^func (c *CellBuffer) SetContent(x int, y int, ch rune, style Style) {$/;"	f	unknown:ubcell.CellBuffer
 SetInputCapture	_app.go	/^func (a *app) SetInputCapture(capture func(event *pixelgl.KeyEv) *pixelgl.KeyEv) *app {$/;"	f	unknown:tview.app
 SetRoot	_app.go	/^func (a *app) SetRoot(root Primitive, fullscreen bool) *app {$/;"	f	unknown:tview.app
 Show	UBCellScreen.go	/^func (u *ubcellScreen) Show() {$/;"	f	unknown:ubcell.ubcellScreen
@@ -82,7 +82,7 @@ inputCapture	_app.go	/^	inputCapture func(event *pixelgl.KeyEv) *pixelgl.KeyEv$/
 ready	_app.go	/^	ready chan bool$/;"	m	struct:tview.app
 root	_app.go	/^	root           Primitive$/;"	m	struct:tview.app
 rootFullScreen	_app.go	/^	rootFullScreen bool$/;"	m	struct:tview.app
-style	cell.go	/^	style *Style$/;"	m	struct:ubcell.cell
+style	cell.go	/^	style Style$/;"	m	struct:ubcell.cell
 t	UBCellScreen.go	/^	t   *text.Text$/;"	m	struct:ubcell.ubcellScreen
 text	_app.go	/^	text *text.Text$/;"	m	struct:tview.app
 tview	_app.go	/^package tview$/;"	p
