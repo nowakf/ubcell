@@ -19,6 +19,7 @@ Draw	cell.go	/^func (c *CellBuffer) Draw() bool {$/;"	f	unknown:ubcell.CellBuffe
 EventHandler	event.go	/^type EventHandler interface {$/;"	i	package:ubcell
 EventMouse	mouse.go	/^type EventMouse struct{}$/;"	s	package:ubcell
 EventResize	resize.go	/^type EventResize struct{}$/;"	s	package:ubcell
+FONT_SIZE	UBCellScreen.go	/^const FONT_SIZE = 18$/;"	c	package:ubcell
 Fill	UBCellScreen.go	/^func (u *ubcellScreen) Fill(r rune, col color.RGBA) {$/;"	f	unknown:ubcell.ubcellScreen
 Fill	cell.go	/^func (c *CellBuffer) Fill(rune, color.RGBA) {$/;"	f	unknown:ubcell.CellBuffer
 Fini	UBCellScreen.go	/^func (u *ubcellScreen) Fini() {$/;"	f	unknown:ubcell.ubcellScreen

@@ -40,20 +40,17 @@ func (c *CellBuffer) SetContent(x int, y int, ch rune, style Style) {
 	if x < 0 || y < 0 || x >= c.w || y >= c.h {
 		return
 	}
-
 	loc := (c.w * y) + x
 
 	ce := &c.cells[loc]
 
-	if ce.ch != ch || ce.style != style {
-		ce.style = style
-		ce.ch = ch
-		ind := c.changes.Search(loc)
-		if ind < len(c.changes) {
-			c.changes[ind] = loc
-		} else {
-			c.changes = append(c.changes, loc)
-		}
+	ce.style = style
+	ce.ch = ch
+	ind := c.changes.Search(loc)
+	if ind < len(c.changes) {
+		c.changes[ind] = loc
+	} else {
+		c.changes = append(c.changes, loc)
 	}
 
 }

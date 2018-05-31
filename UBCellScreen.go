@@ -17,6 +17,8 @@ const dpi = 72
 const ADJUSTX = -2
 const ADJUSTY = -2
 
+const FONT_SIZE = 18
+
 func NewUBCellScreen(p *pixelgl.Window, path string) (Screen, error) {
 
 	u := new(ubcellScreen)
@@ -40,7 +42,7 @@ func NewUBCellScreen(p *pixelgl.Window, path string) (Screen, error) {
 		return u, err
 	}
 	face := truetype.NewFace(tt, &truetype.Options{
-		Size: 22,
+		Size: FONT_SIZE,
 		DPI:  dpi,
 	})
 
