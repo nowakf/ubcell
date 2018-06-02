@@ -22,7 +22,7 @@ type Screen interface {
 
 	HideCursor()
 
-	Size() (int, int)
+	Size() (width, height int)
 
 	PollEvent() pixelgl.Event
 
@@ -31,11 +31,17 @@ type Screen interface {
 	Show()
 }
 
-func NewScreen(p *pixelgl.Window, path string) (Screen, error) {
-	if s, e := NewUBCellScreen(p, path); s != nil {
+func NewScreen(p *pixelgl.Window, cfg Config) (Screen, error) {
+	if s, e := NewUBCellScreen(p, cfg); s != nil {
 		return s, nil
 
 	} else {
 		return nil, e
 	}
+}
+
+type Config interface {
+	FontSize() float64
+	FontPath() string
+	AdjustXY() (float64, float64)
 }

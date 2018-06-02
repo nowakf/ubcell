@@ -71,25 +71,26 @@ func (c *CellBuffer) Size() (int, int) {
 	return c.h, c.w
 }
 
-func (c *CellBuffer) Resize(h, w int) {
+func (c *CellBuffer) Resize(w, h int) {
 	if c.h == h && c.w == w {
 		return
 	}
-	c.h = h
+
+	newc := make([]cell, w*h)
+	//	for y := 0; y < h && y < c.h; y++ {
+	//		for x := 0; x < w && x < c.w; x++ {
+	//			oc := &c.cells[(y*c.w)+x]
+	//			nc := &newc[(y*w)+x]
+	//
+	//			nc.style = oc.style
+	//			nc.ch = oc.ch
+	//
+	//		}
+	//
+	//	}
 	c.w = w
-
-	newc := make([]cell, h*w)
-	for y := 0; y < h && y < c.h; y++ {
-		for x := 0; x < w && x < c.w; x++ {
-			oc := &c.cells[(y*c.w)+x]
-			nc := &newc[(y*w)+x]
-
-			nc.style = oc.style
-			nc.ch = oc.ch
-
-		}
-
-	}
+	c.h = h
+	c.cells = newc
 	//
 }
 func (c *CellBuffer) Seperate(changes sort.IntSlice) (foregrounds map[color.RGBA][]int, backgrounds map[color.RGBA][]int) {

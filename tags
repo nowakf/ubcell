@@ -5,21 +5,19 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	0.0.0	/7918d19f/
-ADJUSTX	UBCellScreen.go	/^const ADJUSTX = -2$/;"	c	package:ubcell
-ADJUSTY	UBCellScreen.go	/^const ADJUSTY = -2$/;"	c	package:ubcell
 App	_app.go	/^func App(w *pixelgl.Window) *app {$/;"	f	package:tview
 Background	style.go	/^func (s Style) Background(c color.RGBA) Style {$/;"	f	unknown:ubcell.Style
 Cat	UBCellScreen.go	/^func (u *ubcellScreen) Cat(r rune) (names []string) {$/;"	f	unknown:ubcell.ubcellScreen
 CellBuffer	cell.go	/^type CellBuffer struct {$/;"	s	package:ubcell
 Clear	UBCellScreen.go	/^func (u *ubcellScreen) Clear() {$/;"	f	unknown:ubcell.ubcellScreen
 Clear	cell.go	/^func (c *CellBuffer) Clear() {$/;"	f	unknown:ubcell.CellBuffer
+Config	screen.go	/^type Config interface {$/;"	i	package:ubcell
 Decompose	style.go	/^func (s Style) Decompose() (color.RGBA, color.RGBA) {$/;"	f	unknown:ubcell.Style
 Draw	_app.go	/^func (a *app) Draw(t pixel.Target, m pixel.Matrix) {$/;"	f	unknown:tview.app
 Draw	cell.go	/^func (c *CellBuffer) Draw() bool {$/;"	f	unknown:ubcell.CellBuffer
 EventHandler	event.go	/^type EventHandler interface {$/;"	i	package:ubcell
 EventMouse	mouse.go	/^type EventMouse struct{}$/;"	s	package:ubcell
 EventResize	resize.go	/^type EventResize struct{}$/;"	s	package:ubcell
-FONT_SIZE	UBCellScreen.go	/^const FONT_SIZE = 18$/;"	c	package:ubcell
 Fill	UBCellScreen.go	/^func (u *ubcellScreen) Fill(r rune, col color.RGBA) {$/;"	f	unknown:ubcell.ubcellScreen
 Fill	cell.go	/^func (c *CellBuffer) Fill(rune, color.RGBA) {$/;"	f	unknown:ubcell.CellBuffer
 Fini	UBCellScreen.go	/^func (u *ubcellScreen) Fini() {$/;"	f	unknown:ubcell.ubcellScreen
@@ -36,12 +34,12 @@ Init	cell.go	/^func (c *CellBuffer) Init() error {$/;"	f	unknown:ubcell.CellBuff
 Loop	_app.go	/^func (a *app) Loop() {$/;"	f	unknown:tview.app
 Mutex	UBCellScreen.go	/^	sync.Mutex$/;"	M	struct:ubcell.ubcellScreen	typeref:typename:sync.Mutex
 NewCellBuffer	cell.go	/^func NewCellBuffer(h, w int, drawer func(int, int, rune), ink func(color.RGBA), clear func(), do/;"	f	package:ubcell
-NewScreen	screen.go	/^func NewScreen(p *pixelgl.Window, path string) (Screen, error) {$/;"	f	package:ubcell
-NewUBCellScreen	UBCellScreen.go	/^func NewUBCellScreen(p *pixelgl.Window, path string) (Screen, error) {$/;"	f	package:ubcell
+NewScreen	screen.go	/^func NewScreen(p *pixelgl.Window, cfg Config) (Screen, error) {$/;"	f	package:ubcell
+NewUBCellScreen	UBCellScreen.go	/^func NewUBCellScreen(p *pixelgl.Window, cfg Config) (Screen, error) {$/;"	f	package:ubcell
 PollEvent	UBCellScreen.go	/^func (u *ubcellScreen) PollEvent() pixelgl.Event {$/;"	f	unknown:ubcell.ubcellScreen
 PollEvent	cell.go	/^func (c *CellBuffer) PollEvent() interface{} {$/;"	f	unknown:ubcell.CellBuffer
 PostEvent	UBCellScreen.go	/^func (u *ubcellScreen) PostEvent() {$/;"	f	unknown:ubcell.ubcellScreen
-Resize	cell.go	/^func (c *CellBuffer) Resize(h, w int) {$/;"	f	unknown:ubcell.CellBuffer
+Resize	cell.go	/^func (c *CellBuffer) Resize(w, h int) {$/;"	f	unknown:ubcell.CellBuffer
 Screen	screen.go	/^type Screen interface {$/;"	i	package:ubcell
 Seperate	cell.go	/^func (c *CellBuffer) Seperate(changes sort.IntSlice) (foregrounds map[color.RGBA][]int, backgrou/;"	f	unknown:ubcell.CellBuffer
 SetContent	UBCellScreen.go	/^func (u *ubcellScreen) SetContent(x, y int, ch rune, style Style) {$/;"	f	unknown:ubcell.ubcellScreen
@@ -63,10 +61,12 @@ app	_app.go	/^type app struct {$/;"	s	package:tview
 background	style.go	/^	background color.RGBA$/;"	m	struct:ubcell.Style
 backgroundC	UBCellScreen.go	/^	backgroundC pixel.RGBA$/;"	m	struct:ubcell.ubcellScreen
 beforeDraw	_app.go	/^	beforeDraw func(screen *ubcell.CellBuffer) bool$/;"	m	struct:tview.app
+calcSize	UBCellScreen.go	/^func (u *ubcellScreen) calcSize(winc, hinc float64) (width int, height int) {$/;"	f	unknown:ubcell.ubcellScreen
 cell	cell.go	/^type cell struct {$/;"	s	package:ubcell
 cells	UBCellScreen.go	/^	cells      *CellBuffer$/;"	m	struct:ubcell.ubcellScreen
 cells	_app.go	/^	cells      *ubcell.CellBuffer$/;"	m	struct:tview.app
 cells	cell.go	/^	cells   []cell$/;"	m	struct:ubcell.CellBuffer
+cfg	UBCellScreen.go	/^	cfg Config$/;"	m	struct:ubcell.ubcellScreen
 ch	cell.go	/^	ch    rune$/;"	m	struct:ubcell.cell
 changes	cell.go	/^	changes sort.IntSlice$/;"	m	struct:ubcell.CellBuffer
 clear	cell.go	/^	clear func()$/;"	m	struct:ubcell.CellBuffer
@@ -75,6 +75,7 @@ dpi	UBCellScreen.go	/^const dpi = 72$/;"	c	package:ubcell
 draw	cell.go	/^	draw  func(int, int, rune)$/;"	m	struct:ubcell.CellBuffer
 focus	_app.go	/^	focus          Primitive$/;"	m	struct:tview.app
 foreground	style.go	/^	foreground color.RGBA$/;"	m	struct:ubcell.Style
+glyphBounds	UBCellScreen.go	/^func (u *ubcellScreen) glyphBounds() (width float64, height float64) {$/;"	f	unknown:ubcell.ubcellScreen
 h	UBCellScreen.go	/^	h, w       int$/;"	m	struct:ubcell.ubcellScreen
 h	cell.go	/^	h       int$/;"	m	struct:ubcell.CellBuffer
 hinc	UBCellScreen.go	/^	hinc, winc float64$/;"	m	struct:ubcell.ubcellScreen

@@ -14,17 +14,14 @@ import (
 
 const dpi = 72
 
-const ADJUSTX = -2
-const ADJUSTY = -2
-
-const FONT_SIZE = 18
-
-func NewUBCellScreen(p *pixelgl.Window, path string) (Screen, error) {
+func NewUBCellScreen(p *pixelgl.Window, cfg Config) (Screen, error) {
 
 	u := new(ubcellScreen)
 	u.win = p
 
-	f, err := os.Open(path)
+	u.cfg = cfg
+
+	f, err := os.Open(cfg.FontPath())
 	defer f.Close()
 
 	if err != nil {
@@ -36,13 +33,12 @@ func NewUBCellScreen(p *pixelgl.Window, path string) (Screen, error) {
 		return u, err
 	}
 
-	fw, fh := p.Bounds().W(), p.Bounds().H()
 	tt, err := truetype.Parse(bytes)
 	if err != nil {
 		return u, err
 	}
 	face := truetype.NewFace(tt, &truetype.Options{
-		Size: FONT_SIZE,
+		Size: cfg.FontSize(),
 		DPI:  dpi,
 	})
 
@@ -53,17 +49,18 @@ func NewUBCellScreen(p *pixelgl.Window, path string) (Screen, error) {
 		text.ASCII,
 	)
 
-	u.hinc = atlas.Glyph('█').Frame.H() + ADJUSTY
-	u.winc = atlas.Glyph('█').Frame.W() + ADJUSTX
-
-	u.h = int(fh / u.hinc)
-	u.w = int(fw / u.winc)
-
 	u.t = text.New(pixel.ZV, atlas)
 
-	u.cells = NewCellBuffer(u.h, u.w,
+	// get size for the first time...
+
+	u.w, u.h = u.Size()
+
+	u.winc, u.hinc = u.glyphBounds()
+
+	u.cells = NewCellBuffer(
+		u.h, u.w,
 		func(x, y int, r rune) {
-			u.t.Add(r, pixel.V(u.winc*float64(x), fh-u.hinc*float64(y)-u.hinc))
+			u.t.Add(r, pixel.V(u.winc*float64(x), u.win.Bounds().H()-u.hinc*float64(y)-u.hinc))
 		},
 		func(c color.RGBA) {
 			//change the color
@@ -90,6 +87,8 @@ type ubcellScreen struct {
 	hinc, winc float64
 	cells      *CellBuffer
 
+	cfg Config
+
 	backgroundC pixel.RGBA
 
 	sync.Mutex
@@ -104,10 +103,27 @@ func (u *ubcellScreen) PostEvent() {
 func (u *ubcellScreen) Fini() {
 }
 func (u *ubcellScreen) Clear() {
+
+	w, h := u.calcSize(u.winc, u.hinc)
+	u.cells.Resize(w, h)
 	u.Lock()
-	defer u.Unlock()
-	u.win.Clear(u.backgroundC)
+	//u.win.Clear(u.backgroundC)
+	u.Unlock()
 }
+func (u *ubcellScreen) calcSize(winc, hinc float64) (width int, height int) {
+	fw, fh := u.win.Bounds().W(), u.win.Bounds().H()
+	return int(fw / winc), int(fh / hinc)
+}
+
+func (u *ubcellScreen) glyphBounds() (width float64, height float64) {
+
+	atlas := u.t.Atlas()
+	xAdjust, yAdjust := u.cfg.AdjustXY()
+	hinc := atlas.Glyph('█').Frame.H() + xAdjust
+	winc := atlas.Glyph('█').Frame.W() + yAdjust
+	return winc, hinc
+}
+
 func (u *ubcellScreen) Fill(r rune, col color.RGBA) {
 }
 
@@ -136,10 +152,22 @@ func (u *ubcellScreen) Cat(r rune) (names []string) {
 func (u *ubcellScreen) ShowCursor(x, y int) {}
 func (u *ubcellScreen) HideCursor()         {}
 func (u *ubcellScreen) Size() (int, int) {
-	return u.w, u.h
+	winc, hinc := u.glyphBounds()
+	width, height := u.calcSize(winc, hinc)
+	return width, height
 }
 func (u *ubcellScreen) PollEvent() pixelgl.Event {
-	return u.win.PollEvent()
+	ev := u.win.PollEvent()
+	switch ev.(type) {
+	case *pixelgl.CursorEvent:
+		//we need to convert it
+		//resize should be here, too
+		return ev
+	default:
+		return ev
+
+	}
+
 }
 func (u *ubcellScreen) Show() {
 	u.Lock()
