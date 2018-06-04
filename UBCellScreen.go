@@ -1,27 +1,27 @@
 package ubcell
 
 import (
-	"github.com/golang/freetype/truetype"
-	"github.com/nowakf/pixel"
-	"github.com/nowakf/pixel/pixelgl"
-	"github.com/nowakf/pixel/text"
 	"image/color"
 	"io/ioutil"
 	"os"
 	"sync"
 	"unicode"
-)
 
-const dpi = 72
+	"github.com/golang/freetype/truetype"
+	"github.com/nowakf/pixel"
+	"github.com/nowakf/pixel/pixelgl"
+	"github.com/nowakf/pixel/text"
+)
 
 func NewUBCellScreen(p *pixelgl.Window, cfg Config) (Screen, error) {
 
 	u := new(ubcellScreen)
-	u.win = p
 
+	u.win = p
 	u.cfg = cfg
 
 	f, err := os.Open(cfg.FontPath())
+
 	defer f.Close()
 
 	if err != nil {
@@ -29,17 +29,20 @@ func NewUBCellScreen(p *pixelgl.Window, cfg Config) (Screen, error) {
 	}
 
 	bytes, err := ioutil.ReadAll(f)
+
 	if err != nil {
 		return u, err
 	}
 
 	tt, err := truetype.Parse(bytes)
+
 	if err != nil {
 		return u, err
 	}
+
 	face := truetype.NewFace(tt, &truetype.Options{
 		Size: cfg.FontSize(),
-		DPI:  dpi,
+		DPI:  cfg.DPI(),
 	})
 
 	atlas := text.NewAtlas(
@@ -50,8 +53,6 @@ func NewUBCellScreen(p *pixelgl.Window, cfg Config) (Screen, error) {
 	)
 
 	u.t = text.New(pixel.ZV, atlas)
-
-	// get size for the first time...
 
 	u.w, u.h = u.Size()
 
@@ -103,22 +104,26 @@ func (u *ubcellScreen) PostEvent() {
 func (u *ubcellScreen) Fini() {
 }
 func (u *ubcellScreen) Clear() {
-
 	w, h := u.calcSize(u.winc, u.hinc)
 	u.cells.Resize(w, h)
-	u.Lock()
-	//u.win.Clear(u.backgroundC)
-	u.Unlock()
+	u.win.Clear(u.backgroundC)
 }
 func (u *ubcellScreen) calcSize(winc, hinc float64) (width int, height int) {
-	fw, fh := u.win.Bounds().W(), u.win.Bounds().H()
+	var fw, fh float64
+	fw, fh = u.win.Bounds().W(), u.win.Bounds().H()
 	return int(fw / winc), int(fh / hinc)
 }
 
 func (u *ubcellScreen) glyphBounds() (width float64, height float64) {
 
-	atlas := u.t.Atlas()
+	var atlas *text.Atlas
+
 	xAdjust, yAdjust := u.cfg.AdjustXY()
+
+	u.Lock()
+	atlas = u.t.Atlas()
+	u.Unlock()
+
 	hinc := atlas.Glyph('█').Frame.H() + xAdjust
 	winc := atlas.Glyph('█').Frame.W() + yAdjust
 	return winc, hinc
@@ -128,15 +133,11 @@ func (u *ubcellScreen) Fill(r rune, col color.RGBA) {
 }
 
 func (u *ubcellScreen) GetContent(x, y int) (ch rune, style Style) {
-	u.Lock()
-	defer u.Unlock()
 	ch, sty := u.cells.GetContent(x, y)
 	return ch, sty
 }
 
 func (u *ubcellScreen) SetContent(x, y int, ch rune, style Style) {
-	u.Lock()
-	defer u.Unlock()
 	u.cells.SetContent(x, y, ch, style)
 }
 
@@ -171,6 +172,6 @@ func (u *ubcellScreen) PollEvent() pixelgl.Event {
 }
 func (u *ubcellScreen) Show() {
 	u.Lock()
-	defer u.Unlock()
 	u.cells.Draw()
+	u.Unlock()
 }

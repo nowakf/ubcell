@@ -71,7 +71,6 @@ ch	cell.go	/^	ch    rune$/;"	m	struct:ubcell.cell
 changes	cell.go	/^	changes sort.IntSlice$/;"	m	struct:ubcell.CellBuffer
 clear	cell.go	/^	clear func()$/;"	m	struct:ubcell.CellBuffer
 done	cell.go	/^	done  func()$/;"	m	struct:ubcell.CellBuffer
-dpi	UBCellScreen.go	/^const dpi = 72$/;"	c	package:ubcell
 draw	cell.go	/^	draw  func(int, int, rune)$/;"	m	struct:ubcell.CellBuffer
 focus	_app.go	/^	focus          Primitive$/;"	m	struct:tview.app
 foreground	style.go	/^	foreground color.RGBA$/;"	m	struct:ubcell.Style

@@ -41,6 +41,7 @@ func NewScreen(p *pixelgl.Window, cfg Config) (Screen, error) {
 }
 
 type Config interface {
+	DPI() float64
 	FontSize() float64
 	FontPath() string
 	AdjustXY() (float64, float64)
