@@ -110,12 +110,12 @@ func (c *CellBuffer) Seperate(changes sort.IntSlice) (foregrounds map[color.RGBA
 	return foregrounds, backgrounds
 }
 
-func (c *CellBuffer) Draw() bool {
+func (c *CellBuffer) Draw() {
 
 	fgs, bgs := c.Seperate(c.changes)
 
 	if len(fgs)+len(bgs) == 0 {
-		return false
+		return
 	}
 
 	for color, list := range bgs {
@@ -134,7 +134,6 @@ func (c *CellBuffer) Draw() bool {
 		c.done()
 	}
 
-	return true
 }
 
 func (c *CellBuffer) Clear() {

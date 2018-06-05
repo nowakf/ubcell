@@ -31,9 +31,9 @@ type Screen interface {
 	Show()
 }
 
-func NewScreen(p *pixelgl.Window, cfg Config) (Screen, error) {
-	if s, e := NewUBCellScreen(p, cfg); s != nil {
-		return s, nil
+func NewScreen(cfg Config) (Screen, error) {
+	if s, e := NewUBCellScreen(cfg); s != nil {
+		return s, e
 
 	} else {
 		return nil, e
