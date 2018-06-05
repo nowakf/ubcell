@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"sync"
+	"time"
 	"unicode"
 
 	"github.com/golang/freetype/truetype"
@@ -121,7 +122,6 @@ func (u *ubcellScreen) window() (*pixelgl.Window, error) {
 		Bounds:    pixel.R(0, 0, 1024, 1024),
 		Resizable: true,
 		//Monitor:   pixelgl.PrimaryMonitor(),
-		VSync: true,
 	}
 	win, err := pixelgl.NewWindow(cfg)
 
@@ -130,15 +130,17 @@ func (u *ubcellScreen) window() (*pixelgl.Window, error) {
 	return win, err
 }
 func (u *ubcellScreen) loop() {
+	fps := time.NewTicker(time.Second / 60)
+
 	for !u.win.Closed() {
-		if !u.paused {
-			u.Lock()
-			u.win.Update()
-			u.Unlock()
-		} else {
-			u.win.UpdateInput()
-		}
+		u.win.UpdateInput()
+		<-fps.C
+		u.Lock()
+		u.win.UpdateGraphics()
+		u.Unlock()
 	}
+
+	fps.Stop()
 
 }
 func (u *ubcellScreen) Init() error {
