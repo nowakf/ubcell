@@ -81,7 +81,7 @@ hinc	UBCellScreen.go	/^	hinc, winc float64$/;"	m	struct:ubcell.ubcellScreen
 ink	cell.go	/^	ink   func(color.RGBA)$/;"	m	struct:ubcell.CellBuffer
 inputCapture	_app.go	/^	inputCapture func(event *pixelgl.KeyEv) *pixelgl.KeyEv$/;"	m	struct:tview.app
 loop	UBCellScreen.go	/^func (u *ubcellScreen) loop() {$/;"	f	unknown:ubcell.ubcellScreen
-mainthread	UBCellScreen.go	/^	mainthread chan func()$/;"	m	struct:ubcell.ubcellScreen
+paused	UBCellScreen.go	/^	paused bool$/;"	m	struct:ubcell.ubcellScreen
 ready	_app.go	/^	ready chan bool$/;"	m	struct:tview.app
 root	_app.go	/^	root           Primitive$/;"	m	struct:tview.app
 rootFullScreen	_app.go	/^	rootFullScreen bool$/;"	m	struct:tview.app

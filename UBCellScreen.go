@@ -108,7 +108,7 @@ type ubcellScreen struct {
 	backgroundC pixel.RGBA
 
 	sync.Mutex
-	mainthread chan func()
+	paused bool
 }
 
 func (u *ubcellScreen) window() (*pixelgl.Window, error) {
@@ -130,11 +130,14 @@ func (u *ubcellScreen) window() (*pixelgl.Window, error) {
 	return win, err
 }
 func (u *ubcellScreen) loop() {
-
 	for !u.win.Closed() {
-		u.Lock()
-		u.win.Update()
-		u.Unlock()
+		if !u.paused {
+			u.Lock()
+			u.win.Update()
+			u.Unlock()
+		} else {
+			u.win.UpdateInput()
+		}
 	}
 
 }
@@ -153,10 +156,8 @@ func (u *ubcellScreen) Clear() {
 
 	w, h := u.size(u.win, u.winc, u.hinc)
 	u.cells.Resize(w, h)
+	u.Show()
 
-	u.Lock()
-	u.win.Clear(u.backgroundC)
-	u.Unlock()
 }
 
 func (u *ubcellScreen) glyphBounds(cfg Config, atlas *text.Atlas) (width float64, height float64) {
@@ -218,8 +219,9 @@ func (u *ubcellScreen) Size() (int, int) {
 	return width, height
 }
 func (u *ubcellScreen) PollEvent() pixelgl.Event {
-
+	u.paused = true
 	ev := u.win.PollEvent()
+	u.paused = false
 	switch ev.(type) {
 	case *pixelgl.CursorEvent:
 
