@@ -1,8 +1,10 @@
 package ubcell
 
 import (
-	"github.com/nowakf/pixel/pixelgl"
 	"image/color"
+
+	"github.com/nowakf/pixel"
+	"github.com/nowakf/pixel/pixelgl"
 )
 
 type Screen interface {
@@ -24,7 +26,12 @@ type Screen interface {
 
 	Size() (width, height int)
 
+	Call(func(*pixelgl.Window))
+
+	GetMatrix(x, y, w, h int) pixel.Matrix
+
 	PollEvent() pixelgl.Event
+	//to be merged:
 
 	PostEvent()
 
@@ -38,11 +45,4 @@ func NewScreen(cfg Config) (Screen, error) {
 	} else {
 		return nil, e
 	}
-}
-
-type Config interface {
-	DPI() float64
-	FontSize() float64
-	FontPath() string
-	AdjustXY() (float64, float64)
 }

@@ -4,7 +4,6 @@ import (
 	"image/color"
 	"io/ioutil"
 	"os"
-	"sync"
 	"time"
 	"unicode"
 
@@ -15,53 +14,32 @@ import (
 )
 
 func NewUBCellScreen(cfg Config) (Screen, error) {
+
+	var err error
+
 	u := new(ubcellScreen)
 
-	win, err := u.window()
+	u.win, err = u.window(cfg.GetWindowConfig())
 
-	if err != nil {
-		return u, err
-	}
+	u.call = make(chan func(), 10)
 
-	f, err := os.Open(cfg.FontPath())
+	err = handle(err)
 
-	defer f.Close()
+	u.cfg = cfg
 
-	if err != nil {
-		return u, err
-	}
+	var atlas *text.Atlas
 
-	bytes, err := ioutil.ReadAll(f)
+	atlas, err = u.makeAtlas(cfg.GetFontPath())
 
-	if err != nil {
-		return u, err
-	}
+	err = handle(err)
 
-	tt, err := truetype.Parse(bytes)
+	u.t = text.New(pixel.ZV, atlas)
 
-	if err != nil {
-		return u, err
-	}
+	u.winc, u.hinc = u.glyphBounds(cfg, atlas)
 
-	face := truetype.NewFace(tt, &truetype.Options{
-		Size: cfg.FontSize(),
-		DPI:  cfg.DPI(),
-	})
+	u.w, u.h = u.size(u.win, u.winc, u.hinc)
 
-	atlas := text.NewAtlas(
-		face,
-		text.RangeTable(unicode.Po),
-		text.RangeTable(unicode.S),
-		text.ASCII,
-	)
-	winc, hinc := u.glyphBounds(cfg, atlas)
-
-	w, h := u.size(win, winc, hinc)
-
-	t := text.New(pixel.ZV, atlas)
-
-	cells := NewCellBuffer(
-		h, w,
+	u.cells = NewCellBuffer(u.h, u.w,
 		func(x, y int, r rune) {
 			u.t.Add(r, pixel.V(u.winc*float64(x), u.win.Bounds().H()-u.hinc*float64(y)-u.hinc))
 		},
@@ -77,26 +55,12 @@ func NewUBCellScreen(cfg Config) (Screen, error) {
 			u.t.Draw(u.win, pixel.IM)
 			u.t.Clear()
 		})
-
-	u = &ubcellScreen{
-		win:   win,
-		cfg:   cfg,
-		cells: cells,
-		t:     t,
-		h:     h,
-		w:     w,
-		hinc:  hinc,
-		winc:  winc,
-	}
-
-	go u.loop()
-
 	return u, err
+
 }
 
 type ubcellScreen struct {
-	t     *text.Text
-	atlas *text.Atlas
+	t *text.Text
 
 	win *pixelgl.Window
 
@@ -108,47 +72,91 @@ type ubcellScreen struct {
 
 	backgroundC pixel.RGBA
 
-	sync.Mutex
 	paused bool
+	call   chan func()
 }
 
-func (u *ubcellScreen) window() (*pixelgl.Window, error) {
+func (u *ubcellScreen) size(win *pixelgl.Window, winc, hinc float64) (width int, height int) {
 
-	u.Lock()
-	defer u.Unlock()
+	var fw, fh float64
+	fw, fh = win.Bounds().W(), win.Bounds().H()
+	return int(fw / winc), int(fh / hinc)
+}
+func handle(err error) error {
+	//eventually do something with the errors
+	return err
+}
 
-	cfg := pixelgl.WindowConfig{
-		Title:     "testing",
-		Bounds:    pixel.R(0, 0, 1024, 1024),
-		Resizable: true,
-		//Monitor:   pixelgl.PrimaryMonitor(),
-	}
+func (u *ubcellScreen) window(cfg pixelgl.WindowConfig) (*pixelgl.Window, error) {
+
 	win, err := pixelgl.NewWindow(cfg)
 
 	win.SetSmooth(false)
 
-	return win, err
+	return win, handle(err)
 }
+func (u *ubcellScreen) makeAtlas(path string) (*text.Atlas, error) {
+	f, err := os.Open(path)
+
+	defer f.Close()
+
+	err = handle(err)
+
+	bytes, err := ioutil.ReadAll(f)
+
+	err = handle(err)
+
+	tt, err := truetype.Parse(bytes)
+
+	err = handle(err)
+
+	face := truetype.NewFace(tt, &truetype.Options{
+		Size: u.cfg.GetFontSize(),
+		DPI:  u.cfg.GetDPI(),
+	})
+
+	atlas := text.NewAtlas(
+		face,
+		text.RangeTable(unicode.Po),
+		text.RangeTable(unicode.S),
+		text.ASCII,
+	)
+	return atlas, err
+}
+
 func (u *ubcellScreen) loop() {
 	fps := time.NewTicker(time.Second / 60)
 
 	for !u.win.Closed() {
-		u.win.UpdateInput()
-		<-fps.C
-		u.Lock()
-		u.win.UpdateGraphics()
-		u.Unlock()
+		select {
+		case f := <-u.call:
+			f()
+			u.win.UpdateGraphics()
+		case <-fps.C:
+			u.win.UpdateInput()
+		}
 	}
 
 	fps.Stop()
 
 }
-func (u *ubcellScreen) Init() error {
+func (u *ubcellScreen) Call(f func(*pixelgl.Window)) {
+	go func() {
+		u.call <- func() {
+			f(u.win)
+		}
+	}()
+}
+func (u *ubcellScreen) GetMatrix(x, y, w, h int) pixel.Matrix {
+	return pixel.IM.Moved(u.win.Bounds().Center())
+}
 
+//things to do after the screen loads:
+func (u *ubcellScreen) Init() error {
+	go u.loop()
 	return nil
 }
 func (u *ubcellScreen) PostEvent() {
-
 	u.win.PostEmpty()
 }
 func (u *ubcellScreen) Fini() {
@@ -164,7 +172,7 @@ func (u *ubcellScreen) Clear() {
 
 func (u *ubcellScreen) glyphBounds(cfg Config, atlas *text.Atlas) (width float64, height float64) {
 
-	xAdjust, yAdjust := cfg.AdjustXY()
+	xAdjust, yAdjust := cfg.GetAdjustXY()
 
 	hinc := atlas.Glyph('█').Frame.H() + xAdjust
 	winc := atlas.Glyph('█').Frame.W() + yAdjust
@@ -207,38 +215,20 @@ func (u *ubcellScreen) HideCursor() {
 
 }
 
-func (u *ubcellScreen) size(win *pixelgl.Window, winc, hinc float64) (width int, height int) {
-
-	var fw, fh float64
-	u.Lock()
-	fw, fh = win.Bounds().W(), win.Bounds().H()
-	u.Unlock()
-	return int(fw / winc), int(fh / hinc)
-}
 func (u *ubcellScreen) Size() (int, int) {
 
 	width, height := u.size(u.win, u.winc, u.hinc)
 	return width, height
 }
 func (u *ubcellScreen) PollEvent() pixelgl.Event {
-	u.paused = true
-	ev := u.win.PollEvent()
-	u.paused = false
-	switch ev.(type) {
-	case *pixelgl.CursorEvent:
-
-		//we need to convert it
-		//resize should be here, too
-		return ev
-	default:
-		return ev
-
-	}
+	return <-u.win.EventChannel
 
 }
+
 func (u *ubcellScreen) Show() {
-	//this should block until it's done...
-	u.Lock()
-	u.cells.Draw()
-	u.Unlock()
+	go func() {
+		if u.call != nil {
+			u.call <- u.cells.Draw
+		}
+	}()
 }
